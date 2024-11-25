@@ -46,6 +46,7 @@ export async function getAuthUrl() {
 
   const { authorization_endpoint } = await getOpenIdConfig(OAUTH_AUTHORITY)
   const { challenge, verifier } = createCodVerifierAndChallenge()
+
   const authUrl = new URL(authorization_endpoint)
   authUrl.searchParams.append("response_type", "code")
   authUrl.searchParams.append("client_id", OAUTH_CLIENT_ID)
@@ -54,13 +55,11 @@ export async function getAuthUrl() {
   authUrl.searchParams.append("code_challenge", challenge)
   authUrl.searchParams.append("redirect_uri", redirectUri)
 
-  // TODO: try getSession from vinxi modulke
+  // TODO: try getSession from vinxi module
   const session = await getSession()
   await session.update((d) => {
     d.code_verifier = verifier
   })
-
-  // TODO: save verifier in cookies somehow
 
   return authUrl
 }
@@ -70,7 +69,6 @@ async function getToken(token_endpoint: string) {
   const redirect_uri = getRedirectUri(requestUrl)
 
   const code = requestUrl.searchParams.get("code")
-
   if (!code) throw new Error("Missing code")
 
   const session = await getSession()
@@ -94,7 +92,6 @@ async function getToken(token_endpoint: string) {
   }
 
   const response = await fetch(tokenUrl, options)
-  console.log(response.status)
   const data = await response.json()
   if (response.status !== 200) throw new Error(data)
   return data
@@ -117,12 +114,7 @@ export async function oauthCallback() {
   )
 
   const { access_token } = await getToken(token_endpoint)
-
-  console.log(access_token)
-
+  // TODO: figure out if storing access_token in session data or not
+  // TODO: figure out if getting user info here
   const userInfo = await getUserInfo(userinfo_endpoint, access_token)
-
-  console.log(userInfo)
-
-  // TODO: figure out if getting userInfo here
 }

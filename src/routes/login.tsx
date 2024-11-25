@@ -1,5 +1,3 @@
-// import { randomBytes, createHash } from "crypto"
-
 import { action, redirect } from "@solidjs/router"
 import { getAuthUrl } from "~/lib/oauth"
 
